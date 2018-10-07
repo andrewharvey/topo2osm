@@ -1,0 +1,12 @@
+{
+  "name": "topo2osm",
+  "version": "1.0.0",
+  "description": "Convert a TopoJSON file into an OSM XML as relation objects",
+  "main": "index.js",
+  "bin": "./index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew Harvey <andrew.harvey4@gmail.com>",
+  "license": "ISC"
+}
