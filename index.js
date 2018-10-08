@@ -13,6 +13,7 @@ if (topo.type !== 'Topology') {
 var way_counter = 0;
 var node_counter = 0;
 const arcToWay = {};
+const nodes = {};
 
 process.stdout.write(`<?xml version="1.0" encoding="UTF-8"?>\n`);
 process.stdout.write(`<osm version="0.6" generator="topo2osm">\n`);
@@ -26,8 +27,17 @@ for (var i = 0; i < topo.arcs.length; i++) {
     for (var j = 0; j < arc.length; j++) {
         const coord = arc[j];
         node_counter--;
-        process.stdout.write(`  <node id="${node_counter}" visible="true" lat="${coord[1]}" lon="${coord[0]}" />\n`);
-        way_nodes.push(node_counter);
+
+        let node_id = node_counter;
+        if (coord.join(',') in nodes) {
+            // node existing reuse id
+            node_id = nodes[coord.join(',')];
+        } else {
+            nodes[coord.join(',')] = node_id;
+        }
+
+        process.stdout.write(`  <node id="${node_id}" visible="true" lat="${coord[1]}" lon="${coord[0]}" />\n`);
+        way_nodes.push(node_id);
     }
 
     process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
