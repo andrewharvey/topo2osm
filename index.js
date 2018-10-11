@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const _ = require('lodash');
 const argv = process.argv.slice(2);
 
 const topo = JSON.parse(fs.readFileSync(argv.length > 0 ? argv[0] : '/dev/stdin'));
@@ -40,11 +41,13 @@ for (var i = 0; i < topo.arcs.length; i++) {
         way_nodes.push(node_id);
     }
 
-    process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
-    for (var k = 0; k < way_nodes.length; k++) {
-        process.stdout.write(`    <nd ref="${way_nodes[k]}"/>\n`);
-    }
-    process.stdout.write(`  </way>\n`);
+    _.chunk(way_nodes, 2000).forEach(function (way_nodes_chunk) {
+        process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
+        for (var k = 0; k < way_nodes_chunk.length; k++) {
+            process.stdout.write(`    <nd ref="${way_nodes_chunk[k]}"/>\n`);
+        }
+        process.stdout.write(`  </way>\n`);
+    });
 }
 
 var relation_counter = 0;
