@@ -41,7 +41,7 @@ for (var i = 0; i < topo.arcs.length; i++) {
 
     // fixme ensure we never create a one node way
 
-    const chunks = _.chunk(way_nodes, 2000);
+    const chunks = _.chunk(way_nodes, 2000 - 1); // -1 to allow to join to next way with an extra node
     chunks.forEach(function (way_nodes_chunk, index) {
         way_counter--;
         if (!arcToWay[i]) {
