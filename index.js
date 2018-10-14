@@ -39,7 +39,10 @@ for (var i = 0; i < topo.arcs.length; i++) {
         way_nodes.push(node_id);
     }
 
-    _.chunk(way_nodes, 2000).forEach(function (way_nodes_chunk) {
+    // fixme ensure we never create a one node way
+
+    const chunks = _.chunk(way_nodes, 2000);
+    chunks.forEach(function (way_nodes_chunk, index) {
         way_counter--;
         if (!arcToWay[i]) {
             arcToWay[i] = [];
@@ -49,6 +52,11 @@ for (var i = 0; i < topo.arcs.length; i++) {
         process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
         for (var k = 0; k < way_nodes_chunk.length; k++) {
             process.stdout.write(`    <nd ref="${way_nodes_chunk[k]}"/>\n`);
+        }
+
+        // join this chunk to the first node of the next chunk if there is a next chunk
+        if (chunks.length > 1 && index < chunks.length - 1) {
+            process.stdout.write(`    <nd ref="${chunks[index + 1][0]}"/>\n`);
         }
         process.stdout.write(`  </way>\n`);
     });
