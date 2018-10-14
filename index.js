@@ -20,10 +20,8 @@ process.stdout.write(`<?xml version="1.0" encoding="UTF-8"?>\n`);
 process.stdout.write(`<osm version="0.6" generator="topo2osm">\n`);
 for (var i = 0; i < topo.arcs.length; i++) {
     const arc = topo.arcs[i];
-    way_counter--;
 
     var way_nodes = [];
-    arcToWay[i] = way_counter;
 
     for (var j = 0; j < arc.length; j++) {
         const coord = arc[j];
@@ -42,6 +40,12 @@ for (var i = 0; i < topo.arcs.length; i++) {
     }
 
     _.chunk(way_nodes, 2000).forEach(function (way_nodes_chunk) {
+        way_counter--;
+        if (!arcToWay[i]) {
+            arcToWay[i] = [];
+        }
+        arcToWay[i].push(way_counter);
+
         process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
         for (var k = 0; k < way_nodes_chunk.length; k++) {
             process.stdout.write(`    <nd ref="${way_nodes_chunk[k]}"/>\n`);
@@ -65,7 +69,9 @@ Object.entries(topo.objects).forEach(([key, value]) => {
                     if (arc < 0) {
                         arc = ~arc;
                     }
-                    process.stdout.write(`    <member type="way" ref="${arcToWay[arc]}" role="${role}"/>\n`);
+                    arcToWay[arc].forEach((ref) => {
+                        process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
+                    });
                 });
             });
         } else if (g.type === 'MultiPolygon') {
@@ -76,7 +82,9 @@ Object.entries(topo.objects).forEach(([key, value]) => {
                         if (arc < 0) {
                             arc = ~arc;
                         }
-                        process.stdout.write(`    <member type="way" ref="${arcToWay[arc]}" role="${role}"/>\n`);
+                        arcToWay[arc].forEach((ref) => {
+                            process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
+                        });
                     });
                 });
             });
