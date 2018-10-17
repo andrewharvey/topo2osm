@@ -64,27 +64,15 @@ for (var i = 0; i < topo.arcs.length; i++) {
 
 var relation_counter = 0;
 Object.entries(topo.objects).forEach(([key, value]) => {
-    for (var i = 0; i < value.geometries.length; i++) {
-        const g = value.geometries[i];
-        relation_counter--;
+    if (value.geometries) {
+        for (var i = 0; i < value.geometries.length; i++) {
+            const g = value.geometries[i];
+            relation_counter--;
 
-        process.stdout.write(`  <relation id="${relation_counter}" visible="true">\n`);
+            process.stdout.write(`  <relation id="${relation_counter}" visible="true">\n`);
 
-        if (g.type === 'Polygon') {
-            g.arcs.forEach((ring, ring_index) => {
-                ring.forEach((arc) => {
-                    const role = ring_index === 0 ? 'outer' : 'inner';
-                    if (arc < 0) {
-                        arc = ~arc;
-                    }
-                    arcToWay[arc].forEach((ref) => {
-                        process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
-                    });
-                });
-            });
-        } else if (g.type === 'MultiPolygon') {
-            g.arcs.forEach((polygon) => {
-                polygon.forEach((ring, ring_index) => {
+            if (g.type === 'Polygon') {
+                g.arcs.forEach((ring, ring_index) => {
                     ring.forEach((arc) => {
                         const role = ring_index === 0 ? 'outer' : 'inner';
                         if (arc < 0) {
@@ -95,13 +83,27 @@ Object.entries(topo.objects).forEach(([key, value]) => {
                         });
                     });
                 });
-            });
-        }
+            } else if (g.type === 'MultiPolygon') {
+                g.arcs.forEach((polygon) => {
+                    polygon.forEach((ring, ring_index) => {
+                        ring.forEach((arc) => {
+                            const role = ring_index === 0 ? 'outer' : 'inner';
+                            if (arc < 0) {
+                                arc = ~arc;
+                            }
+                            arcToWay[arc].forEach((ref) => {
+                                process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
+                            });
+                        });
+                    });
+                });
+            }
 
-        Object.entries(g.properties).forEach(([k, v]) => {
-            process.stdout.write(`    <tag k="${k}" v="${v}"/>\n`);
-        })
-        process.stdout.write(`  </relation>\n`);
+            Object.entries(g.properties).forEach(([k, v]) => {
+                process.stdout.write(`    <tag k="${k}" v="${v}"/>\n`);
+            })
+            process.stdout.write(`  </relation>\n`);
+        }
     }
 });
 
