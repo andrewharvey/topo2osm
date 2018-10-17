@@ -43,22 +43,24 @@ for (var i = 0; i < topo.arcs.length; i++) {
 
     const chunks = _.chunk(way_nodes, 2000 - 1); // -1 to allow to join to next way with an extra node
     chunks.forEach(function (way_nodes_chunk, index) {
-        way_counter--;
-        if (!arcToWay[i]) {
-            arcToWay[i] = [];
-        }
-        arcToWay[i].push(way_counter);
+        if (_.uniq(way_nodes_chunk).length > 1) {
+            way_counter--;
+            if (!arcToWay[i]) {
+                arcToWay[i] = [];
+            }
+            arcToWay[i].push(way_counter);
 
-        process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
-        for (var k = 0; k < way_nodes_chunk.length; k++) {
-            process.stdout.write(`    <nd ref="${way_nodes_chunk[k]}"/>\n`);
-        }
+            process.stdout.write(`  <way id="${way_counter}" visible="true">\n`);
+            for (var k = 0; k < way_nodes_chunk.length; k++) {
+                process.stdout.write(`    <nd ref="${way_nodes_chunk[k]}"/>\n`);
+            }
 
-        // join this chunk to the first node of the next chunk if there is a next chunk
-        if (chunks.length > 1 && index < chunks.length - 1) {
-            process.stdout.write(`    <nd ref="${chunks[index + 1][0]}"/>\n`);
+            // join this chunk to the first node of the next chunk if there is a next chunk
+            if (chunks.length > 1 && index < chunks.length - 1) {
+                process.stdout.write(`    <nd ref="${chunks[index + 1][0]}"/>\n`);
+            }
+            process.stdout.write(`  </way>\n`);
         }
-        process.stdout.write(`  </way>\n`);
     });
 }
 
@@ -78,9 +80,11 @@ Object.entries(topo.objects).forEach(([key, value]) => {
                         if (arc < 0) {
                             arc = ~arc;
                         }
-                        arcToWay[arc].forEach((ref) => {
-                            process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
-                        });
+                        if (arc in arcToWay) {
+                            arcToWay[arc].forEach((ref) => {
+                                process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
+                            });
+                        }
                     });
                 });
             } else if (g.type === 'MultiPolygon') {
@@ -91,9 +95,11 @@ Object.entries(topo.objects).forEach(([key, value]) => {
                             if (arc < 0) {
                                 arc = ~arc;
                             }
-                            arcToWay[arc].forEach((ref) => {
-                                process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
-                            });
+                            if (arc in arcToWay) {
+                                arcToWay[arc].forEach((ref) => {
+                                    process.stdout.write(`    <member type="way" ref="${ref}" role="${role}"/>\n`);
+                                });
+                            }
                         });
                     });
                 });
