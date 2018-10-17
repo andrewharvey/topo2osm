@@ -33,9 +33,9 @@ for (var i = 0; i < topo.arcs.length; i++) {
             node_id = nodes[coord.join(',')];
         } else {
             nodes[coord.join(',')] = node_id;
+            process.stdout.write(`  <node id="${node_id}" visible="true" lat="${coord[1]}" lon="${coord[0]}" />\n`);
         }
 
-        process.stdout.write(`  <node id="${node_id}" visible="true" lat="${coord[1]}" lon="${coord[0]}" />\n`);
         way_nodes.push(node_id);
     }
 
